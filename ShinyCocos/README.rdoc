@@ -1,0 +1,165 @@
+= ShinyCocos
+
+== About
+
+ShinyCocos is a ruby bindings for the Cocos2D-iphone game framework.
+
+The idea is to have a very rubyish binding for the awesome
+{cocos2d-iphone}[http://code.google.com/p/cocos2d-iphone] game
+framework. It also includes the Chipmunk (5.1.0) ruby bindings.
+
+== Why?
+
+Why not?
+
+It makes things easier and faster to prototype, it's not a big overhead
+and also, ruby takes care of your GC.
+
+== How?
+
+Bundled with your application there is a ruby interpreter (ruby 1.8.7).
+The interpreter is loaded with a simple call from within your App Delegate.
+The interpreter then loads "main.rb". From there, you can have as many
+classes/files as you want.
+
+Your own code should be under the directory <tt>vendor</tt>, the
+ruby libraries, and other common code should be under the directory
+<tt>lib</tt>.
+
+For each cocos2d class there is (or will be) a Ruby version of the
+class, right now, the following classes are implemented:
+
+* Director
+* CocosNode
+* Scene
+* Layer
+* Menu
+* MenuItemImage
+* TextureNode
+* Sprite
+* Actions (all are added, not all are functional. The not functional ones will raise an exception when trying to create a new instance)
+* AtlasSprite
+* AtlasSpriteManager
+* AtlasAnimation
+* Label
+* LabelAtlas
+* BitmapFontAtlas
+* TMXTiledMap (& friends)
+* Transitions
+* Some UIKit Classes: UITextField, UISlider, AVAudioPlayer, UserDefaults
+* Custom ShinyCocos helpers: TiledMap
+
+The idea is to support every class provided by cocos2d-iphone. Please
+note that this is a project still starting, so most of the classes are
+not implemented 100%.
+
+== Requirements
+
+* rake (in order to compile and generate the documentation)
+* iPhone SDK 2.2.1 or greater (ShinyCocos and the Template are using as BaseSDK version 3.1.2 and as a deployment OS, version 2.2.1)
+* rdoc >= 2.4.0 (you can install it with: <tt>sudo gem install rdoc</tt>)
+
+NOTE:
+
+Rdoc has a broken support for the <tt>-E</tt> option, so if you have
+installed the latest version, the fix is easy:
+
+  # file: /Library/Ruby/Gems/1.8/gems/rdoc-2.4.3/lib/rdoc/options.rb
+  # line: 215
+  # says:
+  
+  unless RDoc::ParserFactory.alias_extension old, new then
+  
+  # should say:
+  
+  unless RDoc::Parser.alias_extension old, new then
+
+That will fix the <tt>-E</tt> option (needed to treat <tt>.m</tt> files
+as <tt>.c</tt>)
+
+== Installation/Building
+
+First, you need a fresh copy of ShinyCocos, so get one:
+
+  git clone git://github.com/funkaster/shinycocos.git
+
+Now, you're ready to rock. Since we love ruby so much, the building process
+is really easy:
+
+  rake distribution
+  rake install_template
+
+Now fire up XCode, and choose as a new project, the ShinyCocos application.
+Enjoy!
+
+== Template Update
+
+If you need to update your template (you have just installed a new
+version of ShinyCocos), you can easily do it with the Rakefile that
+ships in the template
+
+  rake update_shinycocos
+
+If you installed an old version of the template, try to copy the
+Rakefile and iphonesim binary from the distribution.
+
+== Documentation
+
+You can check the online documentation for the official release here:
+
+http://funkaster.github.com/shinycocos
+
+Also, be sure to check the wiki:
+
+http://wiki.github.com/funkaster/shinycocos
+
+== Adding extensions from the stdlib
+
+If you need to add your own c extension, or one from the stdlib, add
+them to your project, and put the <tt>Init_xxx()</tt> call right after
+the call to SetupShinyCocos() in your main app delegate, like this:
+
+  ShinyCocosSetup(nil);
+  // insert here your ruby extensions (i.e.: Init_zzz())
+  Init_myextension();
+  Init_another_extension();
+  
+  ShinyCocosInitChipmunk();
+  ShinyCocosStart(window, appDelegate);
+
+Be careful with the <tt>require</tt>s though, because if you add the
+extension this way, it will be statically linked, so you don't have to
+<tt>require</tt> it in your code. If you do not want to modify your
+code, just add an empty file named after your extension and put it in
+the <tt>lib</tt> directory of your project.
+
+For ruby-only extensions, just add them to the lib directory.
+
+== Included Extensions/Libraries (from stdlib)
+
+You don't need to <tt>require</tt> these, they're already bundled and
+initialized in the included interpreter.
+
+* zlib
+
+These are pure-ruby libs (found in the <tt>lib</tt> directory) added when
+you create a new project using the XCode template:
+
+* base64
+* date
+* forwardable
+* rexml (no iconv support)
+* set
+
+== Hey, I found a bug!
+
+You sure did. Please report it in the
+{issues section}[http://github.com/funkaster/shinycocos/issues] of the
+github project page.
+
+== TODO
+
+* Improve documentation :-)
+* Integrate the rest of the cocos2d-iphone API
+* Test for leaks
+* Benchmarks
